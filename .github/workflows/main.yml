@@ -6,6 +6,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -21,31 +22,15 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Create Flutter project + inject files
+      - name: Create Flutter project
+        run: flutter create app --org com.aluupvc.pro
+
+      - name: Replace files
         run: |
-          flutter create app --org com.aluupvc.pro
-          rm -f app/pubspec.yaml || true
-          rm -rf app/lib || true
-          mkdir -p app/lib
-
-          test -f pubspec.yaml
-          test -f main.dart
-
-          cp -f pubspec.yaml app/pubspec.yaml
-          cp -f main.dart app/lib/main.dart
-
-          # Camera permission
-          MAN=app/android/app/src/main/AndroidManifest.xml
-          if [ -f "$MAN" ]; then
-            grep -q "android.permission.CAMERA" "$MAN" || \
-              sed -i 's/<manifest/<manifest\\n    <uses-permission android:name="android.permission.CAMERA"\\/>/g' "$MAN"
-          fi
-
-          # minSdk for ML Kit
-          FILE=app/android/app/build.gradle
-          if [ -f "$FILE" ]; then
-            sed -i "s/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g" $FILE || true
-          fi
+          rm app/pubspec.yaml
+          rm app/lib/main.dart
+          cp pubspec.yaml app/pubspec.yaml
+          cp main.dart app/lib/main.dart
 
       - name: Pub get
         run: |
