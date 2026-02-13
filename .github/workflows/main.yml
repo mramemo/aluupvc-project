@@ -36,6 +36,11 @@ jobs:
         run: |
           cd app
           flutter pub get
+      - name: Disable R8 / Minify for Release
+        run: |
+          cd app
+          echo "Disabling minifyEnabled & shrinkResources in android/app/build.gradle"
+          perl -0777 -i -pe "s/minifyEnabled\s+true/minifyEnabled false/g; s/shrinkResources\s+true/shrinkResources false/g" android/app/build.gradle
 
       - name: Build APK
         run: |
